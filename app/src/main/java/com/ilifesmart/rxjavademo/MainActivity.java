@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
+import com.ilifesmart.Utils;
 import com.ilifesmart.weather.GetWeather_Interface;
 import com.ilifesmart.weather.Weather;
 
@@ -57,68 +58,9 @@ public class MainActivity extends BaseActivity {
 		} else if (v.getId() == R.id.Retrofit) {
 			// Retrofit 天气数据测试. 线程池调用..
 			AsyncTask.THREAD_POOL_EXECUTOR.execute(()->{
-				runOnRetrofit();
-			});
-
-			//
-			Observable.create(new ObservableOnSubscribe<String>() {
-				@Override
-				public void subscribe(ObservableEmitter<String> emitter) {
-					String result = runOnRetrofit();
-					emitter.onNext(result);
-					emitter.onComplete();
-				}
-			})
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread())
-			.subscribe(new Consumer<String>() {
-				@Override
-				public void accept(String s) throws Exception {
-					Log.d(TAG, "accept: result " + s);
-				}
+				Utils.runOnRetrofit();
 			});
 		}
-	}
-
-	private String runOnRetrofit() {
-		Retrofit retrofit = new Retrofit.Builder()
-						.baseUrl("https://api.caiyunapp.com/v2/")
-						.addConverterFactory(GsonConverterFactory.create())
-						.build();
-
-		GetWeather_Interface weather = retrofit.create(GetWeather_Interface.class);
-		Call<ResponseBody> call = weather.getWeatherInfoV2("5Jn=rqANZl-i590W", "120.2,30.3");
-
-		try {
-			Response<ResponseBody> response = call.execute();
-			String json = response.body().string();
-			Log.d(TAG, "onResponse: response " + json);
-			Weather weather1 = new Gson().fromJson(json, Weather.class);
-			Log.d(TAG, "onResponse: status " + weather1.getApi_status());
-			Log.d(TAG, "onResponse: version " + weather1.getApi_version());
-			Log.d(TAG, "onResponse: comfort " + weather1.getResult().getComfort());
-			Log.d(TAG, "onResponse: aqi " + weather1.getResult().getAqi());
-
-			return json;
-		} catch (Exception ex) {
-			Log.d(TAG, "runOnRetrofit: Error " + ex.getMessage());
-		}
-
-		return null;
-//		call.enqueue(new Callback<ResponseBody>() {
-//			@Override
-//			public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//				try {
-//				} catch (Exception ex) {
-//					ex.printStackTrace();
-//				}
-//			}
-//
-//			@Override
-//			public void onFailure(Call<ResponseBody> call, Throwable t) {
-//				Log.d(TAG, "onFailure: Error " + t.getMessage());
-//			}
-//		});
 	}
 
 	public static final String TAG = "RxJava";
@@ -150,25 +92,25 @@ public class MainActivity extends BaseActivity {
 //				Log.d(TAG, "onComplete: " + builder.toString());
 //			}
 //		});
-
-		Observable.combineLatest(
-						Observable.just(1L, 2L, 3L), // 第1个发送数据事件的Observable
-						Observable.intervalRange(0, 3, 1, 1, TimeUnit.SECONDS), // 第2个发送数据事件的Observable：从0开始发送、共发送3个数据、第1次事件延迟发送时间 = 1s、间隔时间 = 1s
-						new BiFunction<Long, Long, Long>() {
-							@Override
-							public Long apply(Long o1, Long o2) throws Exception {
-								// o1 = 第1个Observable发送的最新（最后）1个数据
-								// o2 = 第2个Observable发送的每1个数据
-								Log.e(TAG, "合并的数据是： "+ o1 + " "+ o2);
-								return o1 + o2;
-								// 合并的逻辑 = 相加
-								// 即第1个Observable发送的最后1个数据 与 第2个Observable发送的每1个数据进行相加
-							}
-						}).subscribe(new Consumer<Long>() {
-			@Override
-			public void accept(Long s) throws Exception {
-				Log.e(TAG, "合并的结果是： "+s);
-			}
-		});
+//
+//		Observable.combineLatest(
+//						Observable.just(1L, 2L, 3L), // 第1个发送数据事件的Observable
+//						Observable.intervalRange(0, 3, 1, 1, TimeUnit.SECONDS), // 第2个发送数据事件的Observable：从0开始发送、共发送3个数据、第1次事件延迟发送时间 = 1s、间隔时间 = 1s
+//						new BiFunction<Long, Long, Long>() {
+//							@Override
+//							public Long apply(Long o1, Long o2) throws Exception {
+//								// o1 = 第1个Observable发送的最新（最后）1个数据
+//								// o2 = 第2个Observable发送的每1个数据
+//								Log.e(TAG, "合并的数据是： "+ o1 + " "+ o2);
+//								return o1 + o2;
+//								// 合并的逻辑 = 相加
+//								// 即第1个Observable发送的最后1个数据 与 第2个Observable发送的每1个数据进行相加
+//							}
+//						}).subscribe(new Consumer<Long>() {
+//			@Override
+//			public void accept(Long s) throws Exception {
+//				Log.e(TAG, "合并的结果是： "+s);
+//			}
+//		});
 	}
 }

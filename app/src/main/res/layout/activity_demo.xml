@@ -11,9 +11,19 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/Retrofit"
-        android:text="Retrofit"
+        android:id="@+id/Retrofit_Path"
+        android:text="Retrofit_Path"
         android:textAllCaps="false"
         android:onClick="OnClick"
         />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/Retrofit_Query"
+        android:text="Retrofit_Query"
+        android:textAllCaps="false"
+        android:onClick="OnClick"
+        />
+
 </LinearLayout>

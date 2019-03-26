@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
+import com.ilifesmart.Utils;
 import com.ilifesmart.weather.GetWeather_Interface;
 import com.ilifesmart.weather.Weather;
 
@@ -20,6 +21,8 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.ilifesmart.Utils.runOnRetrofit;
 
 public class DemoActivity extends BaseActivity {
 
@@ -38,64 +41,41 @@ public class DemoActivity extends BaseActivity {
 	}
 
 	public void OnClick(View v) {
-		Observable.create(new ObservableOnSubscribe<String>() {
-			@Override
-			public void subscribe(ObservableEmitter<String> emitter) {
-				String result = runOnRetrofit();
-				emitter.onNext(result);
-				emitter.onComplete();
-			}
-		})
-						.subscribeOn(Schedulers.io())
-						.observeOn(AndroidSchedulers.mainThread())
-						.subscribe(new Consumer<String>() {
-							@Override
-							public void accept(String s) throws Exception {
-								postEvent(new RxMessage(s));
-							}
-						});
+		if (v.getId() == R.id.Retrofit_Path) {
+			Observable.create(new ObservableOnSubscribe<String>() {
+				@Override
+				public void subscribe(ObservableEmitter<String> emitter) {
+					String result = runOnRetrofit();
+					emitter.onNext(result);
+					emitter.onComplete();
+				}
+			})
+			.subscribeOn(Schedulers.io())
+			.observeOn(AndroidSchedulers.mainThread())
+			.subscribe(new Consumer<String>() {
+				@Override
+				public void accept(String s) throws Exception {
+					postEvent(new RxMessage(s)); // 自定义EventBus
+				}
+			});
+		} else if (v.getId() == R.id.Retrofit_Query) {
+			Observable.create(new ObservableOnSubscribe<String>() {
+				@Override
+				public void subscribe(ObservableEmitter<String> emitter) {
+					String result = Utils.runOnRetrofitQuery();
+					emitter.onNext(result);
+				}
+			})
+			.subscribeOn(Schedulers.io())
+			.observeOn(AndroidSchedulers.mainThread())
+			.subscribe(new Consumer<String>() {
+				@Override
+				public void accept(String s) throws Exception {
+					Log.d(TAG, "accept: Result " + s);
+				}
+			});
 
-	}
-
-	private String runOnRetrofit() {
-		Retrofit retrofit = new Retrofit.Builder()
-						.baseUrl("https://api.caiyunapp.com/v2/")
-						.addConverterFactory(GsonConverterFactory.create())
-						.build();
-
-		GetWeather_Interface weather = retrofit.create(GetWeather_Interface.class);
-		Call<ResponseBody> call = weather.getWeatherInfoV2("5Jn=rqANZl-i590W", "120.2,30.3");
-
-		try {
-			Response<ResponseBody> response = call.execute();
-			String json = response.body().string();
-			Log.d(TAG, "onResponse: response " + json);
-			Weather weather1 = new Gson().fromJson(json, Weather.class);
-			Log.d(TAG, "onResponse: status " + weather1.getApi_status());
-			Log.d(TAG, "onResponse: version " + weather1.getApi_version());
-			Log.d(TAG, "onResponse: comfort " + weather1.getResult().getComfort());
-			Log.d(TAG, "onResponse: aqi " + weather1.getResult().getAqi());
-
-			return json;
-		} catch (Exception ex) {
-			Log.d(TAG, "runOnRetrofit: Error " + ex.getMessage());
 		}
-
-		return null;
-//		call.enqueue(new Callback<ResponseBody>() {
-//			@Override
-//			public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//				try {
-//				} catch (Exception ex) {
-//					ex.printStackTrace();
-//				}
-//			}
-//
-//			@Override
-//			public void onFailure(Call<ResponseBody> call, Throwable t) {
-//				Log.d(TAG, "onFailure: Error " + t.getMessage());
-//			}
-//		});
 	}
 
 }
