@@ -1,25 +1,45 @@
 package com.ilifesmart.weather;
 
+import java.util.List;
+
 public class Weather {
+
+	@Override
+	public String toString() {
+		return "Weather{" +
+						"status='" + status + '\'' +
+						", lang='" + lang + '\'' +
+						", unit='" + unit + '\'' +
+						", server_time=" + server_time +
+						", api_status='" + api_status + '\'' +
+						", tzshift=" + tzshift +
+						", api_version='" + api_version + '\'' +
+						", result=" + result +
+						", location=" + location +
+						'}';
+	}
+
 	/**
 	 * status : ok
 	 * lang : zh_CN
 	 * unit : metric
-	 * server_time : 1553503600
-	 * location : [30.352,120.244]
+	 * server_time : 1553745206
+	 * location : [30.3,120.2]
 	 * api_status : active
 	 * tzshift : 28800
 	 * api_version : v2.2
-	 * result : {"status":"ok","o3":98,"co":0.4,"temperature":16,"pm10":66,"skycon":"CLOUDY","cloudrate":0.9,"aqi":58,"dswrf":176.5,"visibility":16.82,"humidity":0.61,"so2":4,"ultraviolet":{"index":2,"desc":"很弱"},"pres":101670.05,"pm25":29,"no2":31,"precipitation":{"nearest":{"status":"ok","distance":10000,"intensity":0},"local":{"status":"ok","intensity":0,"datasource":"radar"}},"comfort":{"index":6,"desc":"凉爽"},"wind":{"direction":247,"speed":5.04}}
+	 * result : {"status":"ok","o3":88,"co":0.7,"temperature":18,"pm10":30,"skycon":"PARTLY_CLOUDY_DAY","cloudrate":0.3,"aqi":30,"dswrf":605.7,"visibility":20.25,"humidity":0.67,"so2":7,"ultraviolet":{"index":7,"desc":"强"},"pres":101079.99,"pm25":18,"no2":34,"precipitation":{"nearest":{"status":"ok","distance":0.57,"intensity":0.1875},"local":{"status":"ok","intensity":0,"datasource":"radar"}},"comfort":{"index":5,"desc":"舒适"},"wind":{"direction":85,"speed":11.16}}
 	 */
 
 	private String status;
 	private String lang;
+	private String unit;
 	private int server_time;
 	private String api_status;
 	private int tzshift;
 	private String api_version;
 	private ResultBean result;
+	private List<Double> location;
 
 	public String getStatus() {
 		return status;
@@ -35,6 +55,14 @@ public class Weather {
 
 	public void setLang(String lang) {
 		this.lang = lang;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
 	}
 
 	public int getServer_time() {
@@ -77,27 +105,35 @@ public class Weather {
 		this.result = result;
 	}
 
+	public List<Double> getLocation() {
+		return location;
+	}
+
+	public void setLocation(List<Double> location) {
+		this.location = location;
+	}
+
 	public static class ResultBean {
 		/**
 		 * status : ok
-		 * o3 : 98
-		 * co : 0.4
-		 * temperature : 16
-		 * pm10 : 66
-		 * skycon : CLOUDY
-		 * cloudrate : 0.9
-		 * aqi : 58
-		 * dswrf : 176.5
-		 * visibility : 16.82
-		 * humidity : 0.61
-		 * so2 : 4
-		 * ultraviolet : {"index":2,"desc":"很弱"}
-		 * pres : 101670.05
-		 * pm25 : 29
-		 * no2 : 31
-		 * precipitation : {"nearest":{"status":"ok","distance":10000,"intensity":0},"local":{"status":"ok","intensity":0,"datasource":"radar"}}
-		 * comfort : {"index":6,"desc":"凉爽"}
-		 * wind : {"direction":247,"speed":5.04}
+		 * o3 : 88
+		 * co : 0.7
+		 * temperature : 18
+		 * pm10 : 30
+		 * skycon : PARTLY_CLOUDY_DAY
+		 * cloudrate : 0.3
+		 * aqi : 30
+		 * dswrf : 605.7
+		 * visibility : 20.25
+		 * humidity : 0.67
+		 * so2 : 7
+		 * ultraviolet : {"index":7,"desc":"强"}
+		 * pres : 101079.99
+		 * pm25 : 18
+		 * no2 : 34
+		 * precipitation : {"nearest":{"status":"ok","distance":0.57,"intensity":0.1875},"local":{"status":"ok","intensity":0,"datasource":"radar"}}
+		 * comfort : {"index":5,"desc":"舒适"}
+		 * wind : {"direction":85,"speed":11.16}
 		 */
 
 		private String status;
@@ -119,6 +155,31 @@ public class Weather {
 		private PrecipitationBean precipitation;
 		private ComfortBean comfort;
 		private WindBean wind;
+
+		@Override
+		public String toString() {
+			return "ResultBean{" +
+							"status='" + status + '\'' +
+							", o3=" + o3 +
+							", co=" + co +
+							", temperature=" + temperature +
+							", pm10=" + pm10 +
+							", skycon='" + skycon + '\'' +
+							", cloudrate=" + cloudrate +
+							", aqi=" + aqi +
+							", dswrf=" + dswrf +
+							", visibility=" + visibility +
+							", humidity=" + humidity +
+							", so2=" + so2 +
+							", ultraviolet=" + ultraviolet +
+							", pres=" + pres +
+							", pm25=" + pm25 +
+							", no2=" + no2 +
+							", precipitation=" + precipitation +
+							", comfort=" + comfort +
+							", wind=" + wind +
+							'}';
+		}
 
 		public String getStatus() {
 			return status;
@@ -274,8 +335,8 @@ public class Weather {
 
 		public static class UltravioletBean {
 			/**
-			 * index : 2
-			 * desc : 很弱
+			 * index : 7
+			 * desc : 强
 			 */
 
 			private int index;
@@ -296,11 +357,19 @@ public class Weather {
 			public void setDesc(String desc) {
 				this.desc = desc;
 			}
+
+			@Override
+			public String toString() {
+				return "UltravioletBean{" +
+								"index=" + index +
+								", desc='" + desc + '\'' +
+								'}';
+			}
 		}
 
 		public static class PrecipitationBean {
 			/**
-			 * nearest : {"status":"ok","distance":10000,"intensity":0}
+			 * nearest : {"status":"ok","distance":0.57,"intensity":0.1875}
 			 * local : {"status":"ok","intensity":0,"datasource":"radar"}
 			 */
 
@@ -326,13 +395,13 @@ public class Weather {
 			public static class NearestBean {
 				/**
 				 * status : ok
-				 * distance : 10000
-				 * intensity : 0
+				 * distance : 0.57
+				 * intensity : 0.1875
 				 */
 
 				private String status;
-				private int distance;
-				private int intensity;
+				private double distance;
+				private double intensity;
 
 				public String getStatus() {
 					return status;
@@ -342,20 +411,29 @@ public class Weather {
 					this.status = status;
 				}
 
-				public int getDistance() {
+				public double getDistance() {
 					return distance;
 				}
 
-				public void setDistance(int distance) {
+				public void setDistance(double distance) {
 					this.distance = distance;
 				}
 
-				public int getIntensity() {
+				public double getIntensity() {
 					return intensity;
 				}
 
-				public void setIntensity(int intensity) {
+				public void setIntensity(double intensity) {
 					this.intensity = intensity;
+				}
+
+				@Override
+				public String toString() {
+					return "NearestBean{" +
+									"status='" + status + '\'' +
+									", distance=" + distance +
+									", intensity=" + intensity +
+									'}';
 				}
 			}
 
@@ -367,7 +445,7 @@ public class Weather {
 				 */
 
 				private String status;
-				private int intensity;
+				private double intensity;
 				private String datasource;
 
 				public String getStatus() {
@@ -378,7 +456,7 @@ public class Weather {
 					this.status = status;
 				}
 
-				public int getIntensity() {
+				public double getIntensity() {
 					return intensity;
 				}
 
@@ -393,13 +471,30 @@ public class Weather {
 				public void setDatasource(String datasource) {
 					this.datasource = datasource;
 				}
+
+				@Override
+				public String toString() {
+					return "LocalBean{" +
+									"status='" + status + '\'' +
+									", intensity=" + intensity +
+									", datasource='" + datasource + '\'' +
+									'}';
+				}
+			}
+
+			@Override
+			public String toString() {
+				return "PrecipitationBean{" +
+								"nearest=" + nearest +
+								", local=" + local +
+								'}';
 			}
 		}
 
 		public static class ComfortBean {
 			/**
-			 * index : 6
-			 * desc : 凉爽
+			 * index : 5
+			 * desc : 舒适
 			 */
 
 			private int index;
@@ -423,14 +518,17 @@ public class Weather {
 
 			@Override
 			public String toString() {
-				return "[index: " + index + "; desc: " + desc + "]";
+				return "ComfortBean{" +
+								"index=" + index +
+								", desc='" + desc + '\'' +
+								'}';
 			}
 		}
 
 		public static class WindBean {
 			/**
-			 * direction : 247
-			 * speed : 5.04
+			 * direction : 85
+			 * speed : 11.16
 			 */
 
 			private int direction;
@@ -450,6 +548,14 @@ public class Weather {
 
 			public void setSpeed(double speed) {
 				this.speed = speed;
+			}
+
+			@Override
+			public String toString() {
+				return "WindBean{" +
+								"direction=" + direction +
+								", speed=" + speed +
+								'}';
 			}
 		}
 	}

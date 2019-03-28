@@ -69,19 +69,19 @@ Call<User> createUser(@Body User user);
 
 	@GET("{loc}/realtime.json")
 	Call<ResponseBody> getWeatherInfo(@Path("loc") String loc);
-	// 最终url: https://api.caiyunapp.com/v2/5Jn=rqANZl-i590W/120.2,30.3/realtime.json
+	// 最终url: https://api.caiyunapp.com/v2/TAkhjf8d1nlSlspN/120.2,30.3/realtime.json
 
 	@GET("{token}/{loc}/realtime.json")
 	Call<ResponseBody> getWeatherInfo(@Path("token") String token, @Path("loc") String loc);
-	// 最终url: https://api.caiyunapp.com/v2/5Jn=rqANZl-i590W/120.2,30.3/realtime.json
+	// 最终url: https://api.caiyunapp.com/v2/TAkhjf8d1nlSlspN/120.2,30.3/realtime.json
 
 	@HTTP(method = "GET", path = "{token}/{loc}/realtime.json", hasBody = false)
 	Call<ResponseBody> getWeatherInfoV2(@Path("token") String token, @Path("loc") String loc);
-	// 最终url: https://api.caiyunapp.com/v2/5Jn=rqANZl-i590W/120.2,30.3/realtime.json
+	// 最终url: https://api.caiyunapp.com/v2/TAkhjf8d1nlSlspN/120.2,30.3/realtime.json
 
 	@GET("{token}/{loc}/hourly")
 	Call<ResponseBody> getWeatherHourlyInfo(@Path("token") String token, @Path("loc") String loc, @Query("lang") String lang, @Query("hourlysteps") int hoursstep);
-	// 最终url: https://api.caiyunapp.com/v2/5Jn=rqANZl-i590W/120.2,30.3/realtime.json
+	// 最终url: https://api.caiyunapp.com/v2/TAkhjf8d1nlSlspN/120.2,30.3/realtime.json
 
 
 

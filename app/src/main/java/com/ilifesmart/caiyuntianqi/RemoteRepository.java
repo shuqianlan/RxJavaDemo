@@ -12,6 +12,13 @@ public class RemoteRepository {
 	private Retrofit mRetrofit;
 	private CaiYunTianQi_Interface mWeatherApi;
 
+	/*
+	* 基础网络调用.
+	* 返回类型为Single，仅onSuccess或onError，匹配RxJavaCallAdapterFactory.class
+	* GsonConverter Response格式转换.
+	*
+	* */
+
 	public RemoteRepository() {
 		mRetrofit = RetrofitHelper.getInstance().getRetrofit();
 		mWeatherApi = mRetrofit.create(CaiYunTianQi_Interface.class);
@@ -29,7 +36,9 @@ public class RemoteRepository {
 		return sInstance;
 	}
 
+	// 天气接口.
 	public Single<Weather> getRealTimeWeather(String loc) {
 		return mWeatherApi.getRealTimeWeather(loc);
 	}
+
 }

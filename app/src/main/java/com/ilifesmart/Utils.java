@@ -22,7 +22,7 @@ public class Utils {
 						.build();
 
 		GetWeather_Interface weather = retrofit.create(GetWeather_Interface.class);
-		Call<ResponseBody> call = weather.getWeatherInfoV2("5Jn=rqANZl-i590W", "120.2,30.3");
+		Call<ResponseBody> call = weather.getWeatherInfoV2("TAkhjf8d1nlSlspN", "120.2,30.3");
 
 		try {
 			Response<ResponseBody> response = call.execute();
@@ -67,7 +67,7 @@ public class Utils {
 						.build();
 
 		GetWeather_Interface weather_interface = retrofit.create(GetWeather_Interface.class);
-		Call<ResponseBody> call = weather_interface.getWeatherHourlyInfo("5Jn=rqANZl-i590W", "120.2,30.3", "en_US", 2);
+		Call<ResponseBody> call = weather_interface.getWeatherHourlyInfo("TAkhjf8d1nlSlspN", "120.2,30.3", "en_US", 2);
 
 		try {
 			Response<ResponseBody> response = call.execute();

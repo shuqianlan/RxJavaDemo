@@ -16,9 +16,11 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 import io.reactivex.SingleSource;
 import io.reactivex.SingleTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
@@ -64,7 +66,7 @@ public class DemoActivity extends BaseActivity {
 				}
 			});
 		} else if (v.getId() == R.id.Retrofit_Query) {
-			Observable.create(new ObservableOnSubscribe<String>() {
+			Disposable disposable = Observable.create(new ObservableOnSubscribe<String>() {
 				@Override
 				public void subscribe(ObservableEmitter<String> emitter) {
 					String result = Utils.runOnRetrofitQuery();
@@ -79,16 +81,18 @@ public class DemoActivity extends BaseActivity {
 					Log.d(TAG, "accept: Result " + s);
 				}
 			});
+
+
 		} else if (v.getId() == R.id.Retrofit_RealTime) {
 			RemoteRepository.getInstance().getRealTimeWeather("120.2,30.3")
-//							.compose(new SingleTransformer<Weather, Weather>() {
-//								@Override
-//								public SingleSource<Weather> apply(Single<Weather> upstream) {
-//									return Rxutils.toSimpleSingle(upstream);
-//								}
-//							})
-							.subscribeOn(Schedulers.io())
-							.observeOn(AndroidSchedulers.mainThread())
+							.compose(new SingleTransformer<Weather, Weather>() {
+								@Override
+								public SingleSource<Weather> apply(Single<Weather> upstream) {
+									return Rxutils.toSimpleSingle(upstream);
+								}
+							})
+//							.subscribeOn(Schedulers.io())
+//							.observeOn(AndroidSchedulers.mainThread())
 							.doOnSuccess(new Consumer<Weather>() {
 								@Override
 								public void accept(Weather weather) throws Exception {
@@ -98,12 +102,12 @@ public class DemoActivity extends BaseActivity {
 							.subscribe(new Consumer<Weather>() {
 								@Override
 								public void accept(Weather weather) throws Exception {
-									Log.d(TAG, "Consumer_accept: weather " + weather);
+
 								}
 							}, new Consumer<Throwable>() {
 								@Override
 								public void accept(Throwable throwable) throws Exception {
-									Log.d(TAG, "Throwable_accept: Error " + throwable.getMessage());
+									Log.d(TAG, "accept: Error " + throwable.getMessage());
 								}
 							});
 		}
