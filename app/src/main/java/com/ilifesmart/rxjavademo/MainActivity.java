@@ -12,7 +12,11 @@ import com.ilifesmart.Utils;
 import com.ilifesmart.weather.GetWeather_Interface;
 import com.ilifesmart.weather.Weather;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,11 +24,16 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.BooleanSupplier;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.internal.functions.Functions;
 import io.reactivex.internal.operators.flowable.FlowableInternalHelper;
 import io.reactivex.schedulers.Schedulers;
@@ -60,6 +69,185 @@ public class MainActivity extends BaseActivity {
 			AsyncTask.THREAD_POOL_EXECUTOR.execute(()->{
 				Utils.runOnRetrofit();
 			});
+		} else if (v.getId() == R.id.Retrofit_concat) {
+			// concat：串行发送; merge: 并行发送
+			Observable.concat(Observable.just(1, 2), Observable.just(3, 4), Observable.just(5, 6), Observable.just(7))
+							.subscribe(new Consumer<Integer>() {
+								@Override
+								public void accept(Integer integer) throws Exception {
+									Log.d(TAG, "accept: int " + integer);
+								}
+							});
+		} else if (v.getId() == R.id.Retrofit_zip) {
+			Observable.zip(Observable.interval(1, 5, TimeUnit.SECONDS).map(new Function<Long, String>() {
+				@Override
+				public String apply(Long aLong) throws Exception {
+					return "A" + aLong;
+				}
+			}), Observable.interval(1, 5, TimeUnit.SECONDS).map(new Function<Long, String>() {
+				@Override
+				public String apply(Long aLong) throws Exception {
+					return "B" + aLong;
+				}
+			}), new BiFunction<String, String, String>() {
+				@Override
+				public String apply(String s, String s2) {
+					return s + s2;
+				}
+			}).subscribe(new Consumer<String>() {
+				@Override
+				public void accept(String s) throws Exception {
+					Log.d(TAG, "accept: zip_Result " + s);
+				}
+			});
+		} else if (v.getId() == R.id.Retrofit_reduce) {
+			Observable.just(1,2,3,4,5,6)
+							.reduce(new BiFunction<Integer, Integer, Integer>() {
+								@Override
+								public Integer apply(Integer integer, Integer integer2) throws Exception {
+									return integer + integer2;
+								}
+							}).subscribe(new Consumer<Integer>() {
+				@Override
+				public void accept(Integer integer) throws Exception {
+					Log.d(TAG, "accept: Result " + integer);
+				}
+			});
+		} else if (v.getId() == R.id.Retrofit_collect) {
+			Observable.just(1,2,3,4,5,6)
+							.collect(new Callable<ArrayList<Integer>>() {
+								@Override
+								public ArrayList<Integer> call() {
+									return new ArrayList<>();
+								}
+							}, new BiConsumer<ArrayList<Integer>, Integer>() {
+								@Override
+								public void accept(ArrayList<Integer> integers, Integer integer) throws Exception {
+									integers.add(integer);
+								}
+							}).subscribe(new Consumer<ArrayList<Integer>>() {
+				@Override
+				public void accept(ArrayList<Integer> integers) throws Exception {
+					Log.d(TAG, "accept: collect_result " + integers); // [1,2,3,4,5,6]
+				}
+			});
+		} else if (v.getId() == R.id.Retrofit_retry_when) {
+			Observable.create(new ObservableOnSubscribe<String>() {
+				@Override
+				public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+					emitter.onNext("1");
+					emitter.onNext("2");
+					emitter.onNext("3");
+					emitter.onNext("4");
+					emitter.onError(new Exception("404"));
+				}
+			}).retryWhen(new Function<Observable<Throwable>, ObservableSource<?>>() {
+				@Override
+				public ObservableSource<?> apply(Observable<Throwable> throwableObservable) throws Exception {
+					return throwableObservable.flatMap(new Function<Throwable, ObservableSource<?>>() {
+						@Override
+						public ObservableSource<?> apply(Throwable throwable) throws Exception {
+							Log.d(TAG, "apply: Error " + throwable.getMessage());
+							if (throwable.getMessage().equalsIgnoreCase("404")) {
+								return Observable.empty();
+							} else {
+								return Observable.error(throwable);
+							}
+						}
+					});
+				}
+			}).subscribe(new Observer<String>() {
+				@Override
+				public void onSubscribe(Disposable d) {
+					
+				}
+
+				@Override
+				public void onNext(String integer) {
+					Log.d(TAG, "onNext: retry_when_next " + integer);
+				}
+
+				@Override
+				public void onError(Throwable e) {
+					Log.d(TAG, "onError: Error " + e.getMessage());
+				}
+
+				@Override
+				public void onComplete() {
+					Log.d(TAG, "onComplete: complete ");
+				}
+			});
+		} else if (v.getId() == R.id.Retrofit_retry_until) {
+			AtomicInteger atomicInteger = new AtomicInteger(1);
+			Observable.create(new ObservableOnSubscribe<String>() {
+				@Override
+				public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+					emitter.onNext("1");
+					emitter.onNext("2");
+					emitter.onNext("3");
+					emitter.onError(new Exception("404"));
+					emitter.onNext("4");
+				}})
+				.retryUntil(new BooleanSupplier() {
+					@Override
+					public boolean getAsBoolean() throws Exception {
+						atomicInteger.getAndIncrement();
+
+						return atomicInteger.get() > 2; // true:不再重试 false:继续重试
+					}})
+				.subscribe(new Observer<String>() {
+					@Override
+					public void onSubscribe(Disposable d) {
+						Log.d(TAG, "onSubscribe: " + d.isDisposed());
+					}
+
+					@Override
+					public void onNext(String s) {
+						Log.d(TAG, "onNext: s " + s);
+					}
+
+					@Override
+					public void onError(Throwable e) {
+						Log.d(TAG, "onError: Error " + e.getMessage());
+					}
+
+					@Override
+					public void onComplete() {
+						Log.d(TAG, "onComplete: complete");
+					}
+				});
+		} else if (v.getId() == R.id.Retrofit_add_then) {
+			Observable.just("1", "2", "3", "4")
+			.ignoreElements()
+			.andThen(Observable.just("Complete"))
+//			.doFinally(new Action() {
+//				@Override
+//				public void run() throws Exception {
+//					Log.d(TAG, "run: -------- finally");
+//				}
+//			})
+			.subscribe(new Observer<String>() {
+				@Override
+				public void onSubscribe(Disposable d) {
+					Log.d(TAG, "onSubscribe: ");
+				}
+
+				@Override
+				public void onNext(String s) {
+					Log.d(TAG, "onNext: s " + s);
+				}
+
+				@Override
+				public void onError(Throwable e) {
+					Log.d(TAG, "onError: error " + e.getMessage());
+				}
+
+				@Override
+				public void onComplete() {
+					Log.d(TAG, "onComplete: ");
+				}
+			});
+
 		}
 	}
 

@@ -12,6 +12,10 @@ import com.ilifesmart.caiyuntianqi.Rxutils;
 import com.ilifesmart.weather.GetWeather_Interface;
 import com.ilifesmart.weather.Weather;
 
+import org.reactivestreams.Publisher;
+
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -82,27 +86,25 @@ public class DemoActivity extends BaseActivity {
 				}
 			});
 
-
 		} else if (v.getId() == R.id.Retrofit_RealTime) {
-			RemoteRepository.getInstance().getRealTimeWeather("120.2,30.3")
-							.compose(new SingleTransformer<Weather, Weather>() {
+			Disposable disposable = RemoteRepository.getInstance().getRealTimeWeather("120.2,30.3")
+							.compose(
+//							new SingleTransformer<Weather, Weather>() {
+//								@Override
+//								public SingleSource<Weather> apply(Single<Weather> upstream) {
+//									return Rxutils.toSimpleSingle(upstream);
+//								}
+//							}
+							new FlowableTransformer<Weather, Weather>() {
 								@Override
-								public SingleSource<Weather> apply(Single<Weather> upstream) {
-									return Rxutils.toSimpleSingle(upstream);
-								}
-							})
-//							.subscribeOn(Schedulers.io())
-//							.observeOn(AndroidSchedulers.mainThread())
-							.doOnSuccess(new Consumer<Weather>() {
-								@Override
-								public void accept(Weather weather) throws Exception {
-									Log.d(TAG, "doOnSuccess_accept: weather " + weather);
+								public Publisher<Weather> apply(Flowable<Weather> upstream) {
+									return Rxutils.toSimpleFlowable(upstream);
 								}
 							})
 							.subscribe(new Consumer<Weather>() {
 								@Override
 								public void accept(Weather weather) throws Exception {
-
+									Log.d(TAG, "accept: weather " + weather);
 								}
 							}, new Consumer<Throwable>() {
 								@Override

@@ -13,6 +13,7 @@ public class BaseActivity extends AppCompatActivity {
 	}
 
 	protected <M> void addSubscription(Class<M> eventType, Consumer<M> action) {
+		// doSubscribe中对目标Class已做过滤. 并且已经背压处理.
 		Disposable disposable = RxBus.getRxBus().doSubscribe(eventType, action, new Consumer<Throwable>() {
 			@Override
 			public void accept(Throwable throwable) throws Exception {

@@ -2,6 +2,7 @@ package com.ilifesmart.caiyuntianqi;
 
 import com.ilifesmart.weather.Weather;
 
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import retrofit2.Retrofit;
 
@@ -37,7 +38,7 @@ public class RemoteRepository {
 	}
 
 	// 天气接口.
-	public Single<Weather> getRealTimeWeather(String loc) {
+	public Flowable<Weather> getRealTimeWeather(String loc) {
 		return mWeatherApi.getRealTimeWeather(loc);
 	}
 

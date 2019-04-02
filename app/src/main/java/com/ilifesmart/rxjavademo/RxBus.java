@@ -37,8 +37,17 @@ public class RxBus {
 		return subject.toFlowable(BackpressureStrategy.BUFFER).ofType(type); // 缓存所有的onNext()直至被消耗.仅保留发射type的类型
 	}
 
+	public <T> Flowable<T> getObservable(Class<T> type, Flowable flowable) {
+		// 返回一个带背压的缓存直至消耗的指定类型的可观察者.
+		return subject.toFlowable(BackpressureStrategy.BUFFER).ofType(type); // 缓存所有的onNext()直至被消耗.仅保留发射type的类型
+	}
+
 	public void addSubscription(Object o, Disposable disposable) {
-		String key = o.getClass().getName();
+		addSubscription(o.getClass(), disposable);
+	}
+
+	public void addSubscription(Class clz, Disposable disposable) {
+		String key = clz.getName();
 
 		// 基于类型名的多观察者缓存，用于生命周期内有效.
 		if (mDisposableMap.containsKey(key)) {
